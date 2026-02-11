@@ -22,16 +22,17 @@ def load_resources():
     dt_model = model_pipeline['model']
     label_encoders = model_pipeline['label_encoders']
     features = model_pipeline['features']
-    
+
     # Store unique values for categorical features for display in selectboxes
     categorical_options = {}
     for col in label_encoders.keys():
         categorical_options[col] = sorted(df_original[col].unique())
 
-    return dt_model, label_encoders, features, categorical_options
+    # Return df_original as well for dynamic filtering of models
+    return dt_model, label_encoders, features, categorical_options, df_original
 
 # Load resources once
-dt_model, label_encoders, features, categorical_options = load_resources()
+dt_model, label_encoders, features, categorical_options, df_original = load_resources()
 
 # --- Streamlit UI for User Input ---
 st.sidebar.header("Input Features")
@@ -48,11 +49,8 @@ screen_size = st.sidebar.number_input("Screen Size (inches)", min_value=5.0, max
 # Categorical Inputs (using original values for display)
 brand = st.sidebar.selectbox("Brand", categorical_options['Brand'])
 
-# Filter models based on selected brand
-# Note: This requires the original_df or similar logic to filter models
-# For simplicity, assuming 'Model' selectbox gets all unique models for now
-# A more complex app would need to load the full df_original for filtering
-model_options_for_brand = sorted(df_original[df_original['Brand'] == brand]['Model'].unique()) if 'df_original' in locals() else categorical_options['Model']
+# Filter models based on selected brand using the returned df_original
+model_options_for_brand = sorted(df_original[df_original['Brand'] == brand]['Model'].unique())
 model = st.sidebar.selectbox("Model", model_options_for_brand)
 
 condition = st.sidebar.selectbox("Condition", categorical_options['Condition'])
